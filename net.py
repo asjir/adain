@@ -2,14 +2,23 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 from torchvision.models import vgg16
+from util import expand, Normalization
 
 from function import adaptive_instance_normalization as adain
 from function import calc_mean_std, style_loss
 
 
-def vgg_enc(p=None):
+def vgg_enc(path=None, five=True):
     model = vgg16(pretrained=True, progress=False)
-    p and model.load_state_dict(torch.load(p))
+    if five: model = expand(model)
+    d = 5 if five else 3 
+    model.classifier = None  # to match regardless of num of classes
+    model = nn.DataParallel(nn.Sequential(
+        Normalization(torch.zeros(d), torch.ones(d)),
+        model
+    ))
+    
+    if path: model.load_state_dict(torch.load(path))
     return next(model.children())
 
 
