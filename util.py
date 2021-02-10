@@ -40,7 +40,7 @@ class ImageDataset(Dataset):
         super().__init__()
         self.folder = folder
         self.image_size = image_size
-        self.label = labeld
+        self.label = label
         
         self.paths = paths(folder,doses)
         assert len(self.paths) > 0, f'No images were found in {folder} for training'
