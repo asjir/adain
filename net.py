@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 from torch.nn import functional as F
 from torchvision.models import vgg16
@@ -8,7 +9,7 @@ from function import calc_mean_std, style_loss
 
 def vgg_enc(p=None):
     model = vgg16(pretrained=True, progress=False)
-    p and model.load_state_dict(p)
+    p and model.load_state_dict(torch.load(p))
     return next(model.children())
 
 
