@@ -16,11 +16,11 @@ def reshape_batch(batch):
     n = loaders[0].batch_size/2
     return batch[:n], batch[n:]
 
-def train(loaders, vgg_path=None, epochs=1,
+def train(loaders, vgg_enc, epochs=1,
           decoder=decoder, alpha=1.0):
 
     opt = optim.RAdam(decoder.parameters())
-    model = Transferrer(vgg_enc(vgg_path), decoder, alpha=alpha)
+    model = Transferrer(vgg_enc, decoder, alpha=alpha)
     
     for epoch_num in range(epochs):
         model.train()
