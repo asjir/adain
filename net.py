@@ -1,0 +1,79 @@
+from torch import nn
+from torch.nn import functional as F
+from torchvision.models import vgg16
+
+from function import adaptive_instance_normalization as adain
+from function import calc_mean_std, style_loss
+
+
+def vgg_enc(p=None):
+    model = vgg16(pretrained=True, progress=False)
+    p and model.load_state_dict(p)
+    return next(model.children())
+
+
+class Transferrer(nn.Module):
+    def __init__(self, encoder, decoder, alpha=1.0):
+        super().__init__()
+        enc_layers = list(encoder.children())
+        self.encs = nn.ModuleList([
+            nn.Sequential(*enc_layers[:2]),  # input -> relu1_1
+            nn.Sequential(*enc_layers[2:7]),  # relu1_1 -> relu2_1
+            nn.Sequential(*enc_layers[7:12]),  # relu2_1 -> relu3_1
+            nn.Sequential(*enc_layers[12:19])  # relu3_1 -> relu4_1
+        ])
+        self.decoder = decoder
+        self.alpha = alpha
+
+    def encode_(self, x):
+        res = []
+        for enc in self.encs:
+            x = enc(x)
+            res.append(x)
+        return res
+
+    def encode(self, x):
+        for enc in self.encs:
+            x = enc(x)
+        return x
+
+    #def transfer(self, content, style):   
+
+    def forward(self, content, style):
+        style_feats = self.encode_(style)
+        content_feat = self.encode(content)
+        t = adain(content_feat, style_feats[-1])
+        t = self.alpha * t + (1 - self.alpha) * content_feat
+
+        g_t = self.decoder(t)
+        g_t_feats = self.encode_with_intermediate(g_t)
+
+        loss_c = F.mse_loss(g_t_feats[-1], t)  # TODO:  why not content feat? 
+        loss_s = style_loss(g_t_feats[0], style_feats[0])
+        for i in range(1, 4):
+            loss_s += style_loss(g_t_feats[i], style_feats[i])
+        return loss_c, loss_s
+
+
+decoder = nn.Sequential(
+    nn.Conv2d(512, 256, 3, padding=1),
+    nn.ReLU(),
+    nn.Upsample(scale_factor=2, mode='bilinear'),
+    nn.Conv2d(256, 256, 3, padding=1),
+    nn.ReLU(),
+    nn.Conv2d(256, 256, 3, padding=1),
+    nn.ReLU(),
+    nn.Conv2d(256, 256, 3, padding=1),
+    nn.ReLU(),
+    nn.Conv2d(256, 128, 3, padding=1),
+    nn.ReLU(),
+    nn.Upsample(scale_factor=2, mode='bilinear'),
+    nn.Conv2d(128, 128, 3, padding=1),
+    nn.ReLU(),
+    nn.Conv2d(128, 64, 3, padding=1),
+    nn.ReLU(),
+    nn.Upsample(scale_factor=2, mode='bilinear'),
+    nn.Conv2d(64, 64, 3, padding=1),
+    nn.ReLU(),
+    nn.Conv2d(64, 3, 3, padding=1),
+)
