@@ -21,11 +21,11 @@ def reshape_batch(batch):
     n = int(batch.shape[0]/2)
     return batch[:n], batch[n:2*n]  # in case of odd length!
 
-def train(loaders, vgg_enc, epochs=1, device=None,
-          decoder=decoder, alpha=1.0):
+def train(loaders, transferrer, epochs=1, device=None,
+          alpha=1.0):
     device = device or torch.device("cuda:0")
-    opt = optim.RAdam(decoder.parameters())
-    model = nn.DataParallel(Transferrer(vgg_enc, decoder, alpha=alpha).to(device))
+    opt = optim.RAdam(transferrer.decoder.parameters())
+    model = nn.DataParallel(transferrer)
     
     for epoch_num in range(epochs):
         model.train()
