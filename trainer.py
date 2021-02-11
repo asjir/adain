@@ -1,3 +1,4 @@
+import torch
 from torch.utils.data import DataLoader, random_split
 import torch_optimizer as optim
 from net import Transferrer, decoder, vgg_enc
@@ -16,16 +17,17 @@ def reshape_batch(batch):
     n = int(batch.shape[0]/2)
     return batch[:n], batch[n:]
 
-def train(loaders, vgg_enc, epochs=1,
+def train(loaders, vgg_enc, epochs=1, device=None,
           decoder=decoder, alpha=1.0):
-
+    device = device or torch.device("cuda:0")
     opt = optim.RAdam(decoder.parameters())
-    model = Transferrer(vgg_enc, decoder, alpha=alpha)
+    model = Transferrer(vgg_enc, decoder, alpha=alpha).to(device)
     
     for epoch_num in range(epochs):
         model.train()
         pbar = tqdm(loaders[0])
         for batch in pbar:
+            batch = batch.to(device)
             opt.zero_grad()
             loss_c, loss_s = model(*reshape_batch(batch))
             pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}")
@@ -37,6 +39,7 @@ def train(loaders, vgg_enc, epochs=1,
         pbar = tqdm(loaders[1])
         with torch.no_grad():
             for batch in pbar:
+                batch = batch.to(device)
                 loss_c, loss_s = model(*reshape_batch(batch))
                 pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}")
 
