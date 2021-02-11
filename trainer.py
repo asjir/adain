@@ -45,7 +45,7 @@ def train(loaders, transferrer, epochs=1, device=None,
                 batch_losses = model(*reshape_batch(batch))
                 loss_c, loss_s, loss_r = map(lambda x: x.mean(), batch_losses)
                 pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}, r: {loss_r:.3f}")
-                list(map(lambda x, y: x.append(y.item()), all_losses, batch_losses))
+                list(map(lambda x, y: x.append(y.mean().item()), all_losses, batch_losses))
 
         print(list(map(mean, all_losses)))
     return decoder
