@@ -22,7 +22,8 @@ def vgg_enc(path=None, five=True):
     return model.module
 
 class BottleneckedAdaIN(nn.Module):
-    def __init__(self, )
+    def __init__(self):
+        pass
 
 
 class Transferrer(nn.Module):
