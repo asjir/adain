@@ -71,7 +71,7 @@ class Transferrer(nn.Module):
     def transfer(self, content, style):   
         style_feat = self.encode(style)
         content_feat = self.encode(content)
-        t = adain(content_feat, style_feats[-1])
+        t = self.bottleneck(content_feat, style_feat)
         t = self.alpha * t + (1 - self.alpha) * content_feat
         return self.decoder(t)
 
@@ -84,11 +84,14 @@ class Transferrer(nn.Module):
         g_t = self.decoder(t)
         g_t_feats = self.encode_(g_t)
 
+        # transfer might be needed for bottleneck, with pure adain it's just decode.encode
+        half_consistency = F.l1_loss(transfer(content, content), content)
+
         loss_c = F.mse_loss(g_t_feats[-1], content_feat)  # TODO:  why not content feat? 
         loss_s = style_loss(g_t_feats[0], style_feats[0])
         for i in range(1, 4):
             loss_s += style_loss(g_t_feats[i], style_feats[i])
-        return loss_c, loss_s
+        return loss_c, loss_s, half_consistency
 
 
 decoder = nn.Sequential(

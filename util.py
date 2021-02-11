@@ -221,19 +221,22 @@ def load_classifier(path, chan=3, out=5):
     model.features._modules['0'] = nn.Conv2d(chan, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
     model.classifier._modules['6'] = nn.Linear(in_features=4096, out_features=out, bias=True)
     model = nn.DataParallel(nn.Sequential(
-        Normalization(mu, sigma),
+        Normalization(torch.zeros(chan), torch.ones(chan)),
         model
     ))
     model.load_state_dict(torch.load(path))
     return model
 
 
-def assess_transfer(transferrer, classifier, data_path, dose_c, dose_s,
-                    batch_size=4, image_size=512):
+def assess_transfer(transfer, classifier, data_path, dose_c, dose_s,
+                    batch_size=4, image_size=512, samples=20):
     # either take some images or do aggregate
     data_c, data_s = map(lambda x: DataLoader(ImageDataset(data_path, image_size, train=False, doses=[x])),
                          [dose_c, dose_s])
 
+    n = samples/batch_size
+    for b_c, b_s in take(n, zip(iter(data_c), iter(data_s))):
+        print(F.softmax(classifier(transfer(b_c, b_s)), 1))
     
 
     
