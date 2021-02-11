@@ -19,6 +19,7 @@ inspired by: https://hardikbansal.github.io/CycleGANBlog/
 
 ## TODO
 
-* ensure 5 chan version works
+* test 5 chan version 
     * pipeline eval
-* bottlenecking
+* test bottlenecking
+* add normalisation to gan training, e.g. modifying ImageDataset
