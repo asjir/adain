@@ -55,7 +55,7 @@ def step(model, batch, opt):
     batch_losses = model(*reshape_batch(batch))
     loss_c, loss_s, loss_r = map(lambda x: x.mean(), batch_losses)
     (loss_c + loss_s + loss_r).backward()
-    for param in model.module.,decoder.parameters():
+    for param in model.module.decoder.parameters():
         param.grad.data.clamp_(-1,1)
     opt.step()
     return loss_c, loss_s, loss_r
