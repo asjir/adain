@@ -2,6 +2,7 @@
 import torch
 from torch.nn import functional as F
 
+
 def calc_mean_std(feat, eps=1e-5):
     # eps is a small value added to the variance to avoid divide-by-zero.
     size = feat.size()

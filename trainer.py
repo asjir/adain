@@ -1,10 +1,13 @@
+from statistics import mean
+
 import torch
-from torch.utils.data import DataLoader, random_split
 import torch_optimizer as optim
+from torch.utils.data import DataLoader, random_split
+from tqdm import tqdm
+
 from net import Transferrer, decoder, vgg_enc
 from util import *
-from tqdm import tqdm
-from statistics import mean
+
 
 def loaders(dataset_path, val_frac=.2, batch_size=8, image_size=512, doses=dose2locs.keys()):
     dataset = ImageDataset(dataset_path, image_size=image_size, doses=doses)

@@ -1,11 +1,11 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
-from torchvision.models import vgg16
-from util import expand, Normalization
+from torchvision import models
 
 from function import adaptive_instance_normalization as adain
 from function import calc_mean_std, style_loss
+from util import Normalization, expand
 
 
 def vgg_enc(path=None, five=True):

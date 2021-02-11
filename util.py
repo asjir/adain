@@ -1,13 +1,14 @@
-from torchvision import transforms
-from torch.utils.data import Dataset
-import torch
-from torch import nn
-from torch.nn import functional as F
-from more_itertools import flatten, take
+import re
 from pathlib import Path
 from random import random
+
+import torch
 from matplotlib import pyplot as plt
-import re
+from more_itertools import flatten, take
+from torch import nn
+from torch.nn import functional as F
+from torch.utils.data import DataLoader, Dataset
+from torchvision import transforms
 from torchvision.utils import make_grid
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -213,3 +214,26 @@ def expand(model):
     model.features._modules['0'].weight[:,:3].data = W.data
     model.features._modules['0'].bias.data = b.data
     return model
+
+
+def load_classifier(path, chan=3, out=5):
+    model = models.vgg16(pretrained=False, progress=False)
+    model.features._modules['0'] = nn.Conv2d(chan, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    model.classifier._modules['6'] = nn.Linear(in_features=4096, out_features=out, bias=True)
+    model = nn.DataParallel(nn.Sequential(
+        Normalization(mu, sigma),
+        model
+    ))
+    model.load_state_dict(torch.load(path))
+    return model
+
+
+def assess_transfer(transferrer, classifier, data_path, dose_c, dose_s,
+                    batch_size=4, image_size=512):
+    # either take some images or do aggregate
+    data_c, data_s = map(lambda x: DataLoader(ImageDataset(data_path, image_size, train=False, doses=[x])),
+                         [dose_c, dose_s])
+
+    
+
+    

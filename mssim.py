@@ -1,7 +1,8 @@
+from math import exp
+
+import numpy as np
 import torch
 import torch.nn.functional as F
-from math import exp
-import numpy as np
 
 
 def gaussian(window_size, sigma):
