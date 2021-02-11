@@ -51,5 +51,5 @@ def train(loaders, vgg_enc, epochs=1, device=None,
                 pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}, r: {loss_r:.3f}")
                 map(lambda x, y: x.append(y), all_losses, batch_losses)
 
-        print(mean(losses_c), mean(losses_s))
+        print(list(map(mean, all_losses )))
     return decoder
