@@ -21,6 +21,9 @@ def vgg_enc(path=None, five=True):
     if path: model.load_state_dict(torch.load(path))
     return model.module
 
+class BottleneckedAdaIN(nn.Module):
+    def __init__(self, )
+
 
 class Transferrer(nn.Module):
     def __init__(self, encoder, decoder, alpha=1.0):
@@ -47,7 +50,12 @@ class Transferrer(nn.Module):
             x = enc(x)
         return x
 
-    #def transfer(self, content, style):   
+    def transfer(self, content, style):   
+        style_feat = self.encode(style)
+        content_feat = self.encode(content)
+        t = adain(content_feat, style_feats[-1])
+        t = self.alpha * t + (1 - self.alpha) * content_feat
+        return self.decoder(t)
 
     def forward(self, content, style):
         style_feats = self.encode_(style)
@@ -58,7 +66,7 @@ class Transferrer(nn.Module):
         g_t = self.decoder(t)
         g_t_feats = self.encode_(g_t)
 
-        loss_c = F.mse_loss(g_t_feats[-1], t)  # TODO:  why not content feat? 
+        loss_c = F.mse_loss(g_t_feats[-1], content_feat)  # TODO:  why not content feat? 
         loss_s = style_loss(g_t_feats[0], style_feats[0])
         for i in range(1, 4):
             loss_s += style_loss(g_t_feats[i], style_feats[i])
