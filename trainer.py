@@ -34,8 +34,7 @@ def train(loaders, vgg_enc, epochs=1, device=None,
             batch = batch.to(device)
             opt.zero_grad()
             batch_losses = model(*reshape_batch(batch))
-            print(batch_losses)
-            loss_c, loss_s, loss_r = map(lambda x: x.sum(), batch_losses)
+            loss_c, loss_s, loss_r = map(lambda x: x.mean(), batch_losses)
             pbar.set_description(f"Loss c: {loss_c.item():.3f}, s: {loss_s.item():.3f}, r: {loss_r.item():.3f}")
             (loss_c + loss_s + loss_r).backward()
             opt.step()
@@ -48,7 +47,7 @@ def train(loaders, vgg_enc, epochs=1, device=None,
             for batch in pbar:
                 batch = batch.to(device)
                 batch_losses = model(*reshape_batch(batch))
-                loss_c, loss_s, loss_r = map(lambda x: x.sum(), batch_losses)
+                loss_c, loss_s, loss_r = map(lambda x: x.mean(), batch_losses)
                 pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}, r: {loss_r:.3f}")
                 map(lambda x, y: x.append(y), all_losses, batch_losses)
 
