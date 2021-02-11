@@ -24,8 +24,20 @@ def train(loaders, vgg_enc, epochs=1,
     
     for epoch_num in range(epochs):
         model.train()
-        for batch in loaders[0]:
+        pbar = tqdm(loaders[0])
+        for batch in pbar:
+            opt.zero_grad()
             loss_c, loss_s = model(*reshape_batch(batch))
-            print(loss_c, loss_s)
-  
+            pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}")
+            (loss_c + loss_s).backward()
+            opt.step()
+
+        opt.zero_grad()
+        model.eval()
+        pbar = tqdm(loaders[1])
+        with torch.no_grad():
+            for batch in pbar:
+                loss_c, loss_s = model(*reshape_batch(batch))
+                pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}")
+
     
