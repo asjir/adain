@@ -19,15 +19,15 @@ def vgg_enc(path=None, five=True):
     ))
     
     if path: model.load_state_dict(torch.load(path))
-    return next(model.children())
+    return model.module
 
 
 class Transferrer(nn.Module):
     def __init__(self, encoder, decoder, alpha=1.0):
         super().__init__()
-        enc_layers = list(encoder.children())
+        enc_layers = list(encoder[1].features.children())
         self.encs = nn.ModuleList([
-            nn.Sequential(*enc_layers[:2]),  # input -> relu1_1
+            nn.Sequential(encoder[0], *enc_layers[:2]),  # input -> relu1_1
             nn.Sequential(*enc_layers[2:7]),  # relu1_1 -> relu2_1
             nn.Sequential(*enc_layers[7:12]),  # relu2_1 -> relu3_1
             nn.Sequential(*enc_layers[12:19])  # relu3_1 -> relu4_1
