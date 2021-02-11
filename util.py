@@ -8,7 +8,7 @@ from more_itertools import flatten, take
 from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, Dataset
-from torchvision import transforms
+from torchvision import transforms, models
 from torchvision.utils import make_grid
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

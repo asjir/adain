@@ -9,6 +9,7 @@ from util import Normalization, expand
 
 
 def vgg_enc(path=None, five=True):
+    """DEPREC"""
     model = vgg16(pretrained=True, progress=False)
     if five: model = expand(model)
     d = 5 if five else 3 
@@ -22,6 +23,7 @@ def vgg_enc(path=None, five=True):
     return model.module
 
 def to_encoder(classifier):
+    """DEPREC"""
     fts = classifier[1].module.features
     return nn.Sequential(
         classifier[0],  # normalisation
