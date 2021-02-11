@@ -43,4 +43,4 @@ def train(loaders, vgg_enc, epochs=1, device=None,
                 loss_c, loss_s = model(*reshape_batch(batch))
                 pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}")
 
-    
+    return decoder
