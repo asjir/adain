@@ -21,6 +21,13 @@ def vgg_enc(path=None, five=True):
     if path: model.load_state_dict(torch.load(path))
     return model.module
 
+def to_encoder(classifier):
+    fts = classifier[1].module.features
+    return nn.Sequential(
+        classifier[0],  # normalisation
+        fts
+    )
+
 class BottleneckedAdaIN(nn.Module):
     def __init__(self, latent_dim, orignal_dim=512):
         self.down_m = nn.Linear(orignal_dim, latent_dim)

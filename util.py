@@ -216,7 +216,7 @@ def expand(model):
     return model
 
 
-def load_classifier(path, chan=3, out=5):
+def load_vgg(path, chan=3, out=5):
     model = models.vgg16(pretrained=False, progress=False)
     model.features._modules['0'] = nn.Conv2d(chan, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
     model.classifier._modules['6'] = nn.Linear(in_features=4096, out_features=out, bias=True)
