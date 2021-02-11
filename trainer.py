@@ -4,6 +4,7 @@ import torch_optimizer as optim
 from net import Transferrer, decoder, vgg_enc
 from util import *
 from tqdm import tqdm
+from statistics import mean
 
 def loaders(dataset_path, val_frac=.2, batch_size=8, image_size=512, doses=dose2locs.keys()):
     dataset = ImageDataset(dataset_path, image_size=image_size, doses=doses)
@@ -36,11 +37,14 @@ def train(loaders, vgg_enc, epochs=1, device=None,
 
         opt.zero_grad()
         model.eval()
+        losses_c, losses_s = [], [] 
         pbar = tqdm(loaders[1])
         with torch.no_grad():
             for batch in pbar:
                 batch = batch.to(device)
                 loss_c, loss_s = model(*reshape_batch(batch))
                 pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}")
-
+                losses_c.append(loss_c.item())
+                losses_s.append(loss_s.item())
+        print(mean(losses_c), mean(losses_s))
     return decoder
