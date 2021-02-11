@@ -56,7 +56,7 @@ class Transferrer(nn.Module):
         t = self.alpha * t + (1 - self.alpha) * content_feat
 
         g_t = self.decoder(t)
-        g_t_feats = self.encode_with_intermediate(g_t)
+        g_t_feats = self.encode_(g_t)
 
         loss_c = F.mse_loss(g_t_feats[-1], t)  # TODO:  why not content feat? 
         loss_s = style_loss(g_t_feats[0], style_feats[0])
