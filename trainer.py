@@ -25,7 +25,7 @@ def train(loaders, vgg_enc, epochs=1, device=None,
           decoder=decoder, alpha=1.0):
     device = device or torch.device("cuda:0")
     opt = optim.RAdam(decoder.parameters())
-    model = Transferrer(vgg_enc, decoder, alpha=alpha).to(device)
+    model = nn.DataParallel(Transferrer(vgg_enc, decoder, alpha=alpha).to(device))
     
     for epoch_num in range(epochs):
         model.train()
@@ -33,7 +33,8 @@ def train(loaders, vgg_enc, epochs=1, device=None,
         for batch in pbar:
             batch = batch.to(device)
             opt.zero_grad()
-            loss_c, loss_s, loss_r = model(*reshape_batch(batch))
+            batch_losses = model(*reshape_batch(batch))
+            loss_c, loss_s, loss_r = map(lambda x: x.sum(), batch_losses)
             pbar.set_description(f"Loss c: {loss_c.item():.3f}, s: {loss_s.item():.3f}, r: {loss_r.item():.3f}")
             (loss_c + loss_s + loss_r).backward()
             opt.step()
@@ -46,8 +47,8 @@ def train(loaders, vgg_enc, epochs=1, device=None,
             for batch in pbar:
                 batch = batch.to(device)
                 batch_losses = model(*reshape_batch(batch))
-                loss_c, loss_s, loss_r = losses
-                pbar.set_description(f"Loss c: {loss_c.item():.3f}, s: {loss_s.item():.3f}, r: {loss_r.item():.3f}")
+                loss_c, loss_s, loss_r = map(lambda x: x.sum(), batch_losses)
+                pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}, r: {loss_r:.3f}")
                 map(lambda x, y: x.append(y), all_losses, batch_losses)
 
         print(mean(losses_c), mean(losses_s))
