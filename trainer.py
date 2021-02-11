@@ -32,12 +32,8 @@ def train(loaders, transferrer, epochs=1, device=None,
         pbar = tqdm(loaders[0])
         for batch in pbar:
             batch = batch.to(device)
-            opt.zero_grad()
-            batch_losses = model(*reshape_batch(batch))
-            loss_c, loss_s, loss_r = map(lambda x: x.mean(), batch_losses)
+            loss_c, loss_s, loss_r = step(model, batch, opt)
             pbar.set_description(f"Loss c: {loss_c.item():.3f}, s: {loss_s.item():.3f}, r: {loss_r.item():.3f}")
-            (loss_c + loss_s + loss_r).backward()
-            opt.step()
 
         opt.zero_grad()
         model.eval()
@@ -53,3 +49,13 @@ def train(loaders, transferrer, epochs=1, device=None,
 
         print(list(map(mean, all_losses)))
     return decoder
+
+def step(model, batch, opt):
+    opt.zero_grad()
+    batch_losses = model(*reshape_batch(batch))
+    loss_c, loss_s, loss_r = map(lambda x: x.mean(), batch_losses)
+    (loss_c + loss_s + loss_r).backward()
+    for param in model.parameters():
+        param.grad.data.clamp_(-1,1)
+    opt.step()
+    return loss_c, loss_s, loss_r

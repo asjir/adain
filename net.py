@@ -52,7 +52,7 @@ class BottleneckedAdaIN(nn.Module):
 
 
 class Transferrer(nn.Module):
-    def __init__(self, encoder, decoder, bottleneck=None, alpha=1.0):
+    def __init__(self, encoder, decoder, bottleneck=None, alpha=1.0, huber_beta=2e-3):
         super().__init__()
         enc_layers = list(encoder[1].features.children())
         self.encs = nn.ModuleList([
@@ -64,6 +64,7 @@ class Transferrer(nn.Module):
         self.decoder = decoder
         self.alpha = alpha
         self.bottleneck = BottleneckedAdaIN(bottleneck) if bottleneck else adain
+        self.consistency_loss = nn.SmoothL1Loss(beta=huber_beta)
 
     def encode_(self, x):
         res = []
@@ -94,7 +95,7 @@ class Transferrer(nn.Module):
         g_t_feats = self.encode_(g_t)
 
         # transfer might be needed for bottleneck, with pure adain it's just decode.encode
-        half_consistency = F.l1_loss(self.transfer(content, content), content)
+        half_consistency = self.consistency_loss(self.transfer(content, content), content)
 
         loss_c = F.mse_loss(g_t_feats[-1], content_feat)  # TODO:  why not content feat? 
         loss_s = style_loss(g_t_feats[0], style_feats[0])
