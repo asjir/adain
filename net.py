@@ -22,12 +22,28 @@ def vgg_enc(path=None, five=True):
     return model.module
 
 class BottleneckedAdaIN(nn.Module):
-    def __init__(self):
-        pass
+    def __init__(self, latent_dim, orignal_dim=512):
+        self.down_m = nn.Linear(orignal_dim, latent_dim)
+        self.down_s = nn.Linear(orignal_dim, latent_dim)
+        self.up_m = nn.Linear(latent_dim, orignal_dim)
+        self.up_s = nn.Linear(latent_dim, orignal_dim)
+
+    def forward(self, content_feat, style_feat):
+        assert (content_feat.size()[:2] == style_feat.size()[:2])
+        size = content_feat.size()
+        style_mean, style_std = calc_mean_std(style_feat)
+        style_mean = self.up_m(self.down_m(style_mean))
+        style_std = self.up_s(self.down_s(style_std))
+        content_mean, content_std = calc_mean_std(content_feat)
+
+        normalized_feat = (content_feat - content_mean.expand(
+            size)) / content_std.expand(size)
+        return normalized_feat * style_std.expand(size) + style_mean.expand(size)
+
 
 
 class Transferrer(nn.Module):
-    def __init__(self, encoder, decoder, alpha=1.0):
+    def __init__(self, encoder, decoder, bottleneck=None, alpha=1.0):
         super().__init__()
         enc_layers = list(encoder[1].features.children())
         self.encs = nn.ModuleList([
@@ -38,6 +54,7 @@ class Transferrer(nn.Module):
         ])
         self.decoder = decoder
         self.alpha = alpha
+        self.bottleneck = BottleneckedAdaIN(bottleneck) if bottleneck else adain
 
     def encode_(self, x):
         res = []
@@ -61,7 +78,7 @@ class Transferrer(nn.Module):
     def forward(self, content, style):
         style_feats = self.encode_(style)
         content_feat = self.encode(content)
-        t = adain(content_feat, style_feats[-1])
+        t = self.bottleneck(content_feat, style_feats[-1])
         t = self.alpha * t + (1 - self.alpha) * content_feat
 
         g_t = self.decoder(t)
