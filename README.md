@@ -16,3 +16,9 @@ implementation: TODO
 inspired by: https://hardikbansal.github.io/CycleGANBlog/
 
 * could be extended into conditional gans
+
+## TODO
+
+* ensure 5 chan version works
+    * pipeline eval
+* bottlenecking

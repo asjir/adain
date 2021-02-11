@@ -15,7 +15,7 @@ def loaders(dataset_path, val_frac=.2, batch_size=8, image_size=512, doses=dose2
 
 def reshape_batch(batch):
     n = int(batch.shape[0]/2)
-    return batch[:n], batch[n:]
+    return batch[:n], batch[n:2*n]  # in case of odd length!
 
 def train(loaders, vgg_enc, epochs=1, device=None,
           decoder=decoder, alpha=1.0):
