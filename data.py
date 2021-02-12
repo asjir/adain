@@ -61,7 +61,7 @@ class ImageDataset(Dataset):
         return self.transform(self.f(img/255))
 
 
-class MS_Norm:  
+class MSNorm:  
     def __init__(self, norm_path):
         self.mean, self.std = torch.load(norm_path)
         
