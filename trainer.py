@@ -10,8 +10,9 @@ from util import *
 from data import ImageDataset
 
 
-def loaders(dataset_path, val_frac=.2, batch_size=8, image_size=512, doses=dose2locs.keys()):
-    dataset = ImageDataset(dataset_path, image_size=image_size, doses=doses)
+def loaders(dataset_path, val_frac=.2, batch_size=8, image_size=512, doses=dose2locs.keys(),
+            aug_prob=0.):
+    dataset = ImageDataset(dataset_path, image_size=image_size, doses=doses, aug_prob=aug_prob)
     val_len = int(len(dataset) * val_frac)
     lengths = [len(dataset) - val_len, val_len]
     datasets = random_split(dataset, lengths=lengths)
