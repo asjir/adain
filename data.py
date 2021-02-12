@@ -8,7 +8,7 @@ from torch import nn
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-from util import Normalization, dose2locs
+from util import dose2locs, loc2dose
 
 
 class ImageDataset(Dataset):
@@ -63,7 +63,7 @@ class ImageDataset(Dataset):
 
 class MSNorm:  
     def __init__(self, norm_path):
-        self.mean, self.std = torch.load(norm_path)
+        self.mean, self.std = torch.load(norm_path, map_location='cpu')
         
     def __call__(self, img):
         return (img - self.mean) / self.std
