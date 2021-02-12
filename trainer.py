@@ -5,9 +5,9 @@ import torch_optimizer as optim
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 
+from data import ImageDataset
 from net import Transferrer, decoder, vgg_enc
 from util import *
-from data import ImageDataset
 
 
 def loaders(dataset_path, val_frac=.2, batch_size=8, image_size=512, doses=dose2locs.keys(),

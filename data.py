@@ -1,7 +1,11 @@
+import re
+
+from torch import nn
 from torch.utils.data import Dataset
 from torchvision import transforms
-from torch import nn
+
 from util import Normalization
+
 
 class ImageDataset(Dataset):
     def __init__(self, folder, image_size, transparent=False, train=True,
@@ -36,6 +40,8 @@ class ImageDataset(Dataset):
             # transforms.ColorJitter(saturation=.1, contrast=.1)
             # RandomApply(aug_prob, transforms.RandomResizedCrop(image_size, scale=(0.5, 1.0), ratio=(0.98, 1.02)), transforms.CenterCrop(image_size)),
         ])
+
+
 def d8(img):
     r = random()
     if r > .75:
