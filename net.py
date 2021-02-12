@@ -53,7 +53,8 @@ class BottleneckedAdaIN(nn.Module):
 
 
 class Transferrer(nn.Module):
-    def __init__(self, encoder, decoder, bottleneck=None, alpha=1.0, huber_beta=2e-3, normalised=False):
+    def __init__(self, encoder, decoder, bottleneck=None,
+                 alpha=1.0, huber_beta=2e-3, normalised=False):
         super().__init__()
         enc_layers = list(encoder[1].features.children())
 

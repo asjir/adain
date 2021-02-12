@@ -65,7 +65,7 @@ class MSNorm:
     def __init__(self, norm_path):
         self.mean, self.std = torch.load(norm_path)
         
-    def __call__(self, im):
+    def __call__(self, img):
         return (img - self.mean) / self.std
 
 
