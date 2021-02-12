@@ -12,7 +12,7 @@ from util import Normalization, dose2locs
 
 
 class ImageDataset(Dataset):
-    def __init__(self, folder, image_size, transparent=False, train=True, norm_f=None
+    def __init__(self, folder, image_size, transparent=False, train=True, norm_f=None,
                  aug_prob=0., greyscale=False, doses=[0.0], label=False):
 
         def paths(folder, doses):
