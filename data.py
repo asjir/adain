@@ -3,6 +3,7 @@ from random import random
 from pathlib import Path
 
 from more_itertools import flatten
+import torch
 from torch import nn
 from torch.utils.data import Dataset
 from torchvision import transforms
