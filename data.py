@@ -12,7 +12,7 @@ from util import Normalization, dose2locs
 
 
 class ImageDataset(Dataset):
-    def __init__(self, folder, image_size, transparent=False, train=True,
+    def __init__(self, folder, image_size, transparent=False, train=True, norm_f=None
                  aug_prob=0., greyscale=False, doses=[0.0], label=False):
 
         def paths(folder, doses):
@@ -28,10 +28,10 @@ class ImageDataset(Dataset):
         self.folder = folder
         self.image_size = image_size
         self.label = label
+        self.norm_f = norm_f or (lambda x: x)
 
         self.paths = paths(folder, doses)
-        assert len(
-            self.paths) > 0, f'No images were found in {folder} for training'
+        assert len(self.paths) > 0, f'No images were found in {folder} for training'
 
         #convert_image_fn = convert_transparent_to_rgb if not transparent else convert_rgb_to_transparent
         self.num_channels = 3 if not transparent else 5
@@ -50,7 +50,7 @@ class ImageDataset(Dataset):
 
     def __getitem__(self, index):
         path = self.paths[index]
-        img = torch.load(path)
+        img = self.norm_f(torch.load(path))
         if self.num_channels == 3:
             img = img[:3]
         elif self.num_channels == 1:
@@ -61,9 +61,12 @@ class ImageDataset(Dataset):
         return self.transform(self.f(img/255))
 
 
-class NormedDataset(Dataset):
-    def __init__(self, folder, image_size, train):
-        pass
+class MS_Norm:  
+    def __init__(self, norm_path):
+        self.mean, self.std = torch.load(norm_path)
+        
+    def __call__(self, im):
+        return (img - self.mean) / self.std
 
 
 def d8(img):

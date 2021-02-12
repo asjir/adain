@@ -29,6 +29,7 @@ def to_encoder(classifier):
         classifier[0],  # normalisation
         fts
     )
+    
 
 class BottleneckedAdaIN(nn.Module):
     def __init__(self, latent_dim, orignal_dim=512):
@@ -52,11 +53,13 @@ class BottleneckedAdaIN(nn.Module):
 
 
 class Transferrer(nn.Module):
-    def __init__(self, encoder, decoder, bottleneck=None, alpha=1.0, huber_beta=2e-3):
+    def __init__(self, encoder, decoder, bottleneck=None, alpha=1.0, huber_beta=2e-3, normalised=False):
         super().__init__()
         enc_layers = list(encoder[1].features.children())
+
+        first = enc_layers[:2] if normalised else (encoder[0], *enc_layers[:2])
         self.encs = nn.ModuleList([
-            nn.Sequential(encoder[0], *enc_layers[:2]),  # input -> relu1_1
+            nn.Sequential(*first),  # input -> relu1_1
             nn.Sequential(*enc_layers[2:7]),  # relu1_1 -> relu2_1
             nn.Sequential(*enc_layers[7:12]),  # relu2_1 -> relu3_1
             nn.Sequential(*enc_layers[12:19])  # relu3_1 -> relu4_1
