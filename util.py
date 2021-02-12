@@ -26,18 +26,6 @@ for k, vs in dose2locs.items():
     for v in vs:
         loc2dose[v] = k
 
-def d8(img):
-    r = random()
-    if r > .75:
-        img = torch.rot90(img, 3, dims=(1,2))
-    elif r > .5:
-        img = torch.rot90(img, 2, dims=(1,2))
-    elif r > .25:
-        img = torch.rot90(img, 1, dims=(1,2))
-    if random()>.5:
-        img = torch.flip(img, dims=(2,))
-    return img
-
 def show(g):
     plt.figure(figsize=(40,40)) 
     plt.imshow(g[0,:3].detach().cpu().permute(1,2,0))

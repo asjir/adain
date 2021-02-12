@@ -36,6 +36,17 @@ class ImageDataset(Dataset):
             # transforms.ColorJitter(saturation=.1, contrast=.1)
             # RandomApply(aug_prob, transforms.RandomResizedCrop(image_size, scale=(0.5, 1.0), ratio=(0.98, 1.02)), transforms.CenterCrop(image_size)),
         ])
+def d8(img):
+    r = random()
+    if r > .75:
+        img = torch.rot90(img, 3, dims=(1,2))
+    elif r > .5:
+        img = torch.rot90(img, 2, dims=(1,2))
+    elif r > .25:
+        img = torch.rot90(img, 1, dims=(1,2))
+    if random()>.5:
+        img = torch.flip(img, dims=(2,))
+    return img
 
     def __len__(self):
         return len(self.paths)
@@ -56,3 +67,16 @@ class ImageDataset(Dataset):
 class NormedDataset(Dataset):
     def __init__(self, folder, image_size, train):
         pass
+
+
+def d8(img):
+    r = random()
+    if r > .75:
+        img = torch.rot90(img, 3, dims=(1,2))
+    elif r > .5:
+        img = torch.rot90(img, 2, dims=(1,2))
+    elif r > .25:
+        img = torch.rot90(img, 1, dims=(1,2))
+    if random()>.5:
+        img = torch.flip(img, dims=(2,))
+    return img
