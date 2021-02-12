@@ -6,7 +6,7 @@ from torch import nn
 from torch.utils.data import Dataset
 from torchvision import transforms
 
-from util import Normalization
+from util import Normalization, dose2locs
 
 
 class ImageDataset(Dataset):
