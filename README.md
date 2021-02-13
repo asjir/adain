@@ -22,4 +22,4 @@ inspired by: https://hardikbansal.github.io/CycleGANBlog/
 * test 5 chan version 
     * pipeline eval
 * test bottlenecking
-* add normalisation to gan training, e.g. modifying ImageDataset
+* grab some cats and dogs from ImageNet

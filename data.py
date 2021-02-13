@@ -68,6 +68,9 @@ class MSNorm:
     def __call__(self, img):
         return (img - self.mean) / self.std
 
+    def invert(self, img):
+        return img * self.std + self.mean
+
 
 def d8(img):
     r = random()
