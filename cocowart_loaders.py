@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageOps
 from sklearn.model_selection import ShuffleSplit
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
@@ -14,11 +14,11 @@ def ims_in(root, eval_frac=.2, seed=42):
 
 
 def build_datasets(root_coco, root_wart, seed=42, eval_frac=.2,
-                   batch_size=8):
+                   batch_size=8, num_workers=1):
     f = lambda x: ims_in(x, eval_frac=eval_frac, seed=seed)
     coco_train_ims, coco_eval_ims = f(root_coco)
     wart_train_ims, wart_eval_ims = f(root_wart)
-    g = lambda x, y: DataLoader(CocoWArtDataset(x,y), batch_size=batch_size)
+    g = lambda x, y: DataLoader(CocoWArtDataset(x,y), batch_size=batch_size, num_workers=num_workers)
     return g(coco_train_ims, wart_train_ims), g(coco_eval_ims, wart_eval_ims)
 
 
@@ -49,6 +49,9 @@ class CocoWArtDataset(Dataset):
     
     def load_rescale(self, im_path):
         im = Image.open(im_path)
+        if im.mode is not "RGB":
+            im = ImageOps.colorize(im, "black", "white")
+
         H,W = im.size 
         scale = self.rescale_to / min(H,W)
         im = im.resize((int(H*scale), int(W*scale)), resample=Image.BICUBIC)
