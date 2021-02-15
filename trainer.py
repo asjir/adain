@@ -6,7 +6,6 @@ from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 
 from data import ImageDataset
-from net import Transferrer, decoder, vgg_enc
 from util import *
 
 
@@ -23,8 +22,7 @@ def reshape_batch(batch):
     n = int(batch.shape[0]/2)
     return batch[:n], batch[n:2*n]  # in case of odd length!
 
-def train(loaders, transferrer, epochs=1, device=None,
-          alpha=1.0):
+def train(loaders, transferrer, epochs=1, device=None):
     device = device or torch.device("cuda:0")
     opt = optim.RAdam(transferrer.decoder.parameters())
     model = nn.DataParallel(transferrer)
@@ -50,7 +48,7 @@ def train(loaders, transferrer, epochs=1, device=None,
                 list(map(lambda x, y: x.append(y.mean().item()), all_losses, batch_losses))
 
         print(list(map(mean, all_losses)))
-    return decoder
+    return transferrer
 
 def step(model, batch, opt):
     opt.zero_grad()
