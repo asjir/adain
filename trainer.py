@@ -19,6 +19,7 @@ def loaders(dataset_path, val_frac=.2, batch_size=8, image_size=512, doses=dose2
            DataLoader(datasets[1], batch_size=batch_size*2)
 
 def reshape_batch(batch):
+    # TODO: it needs to be put in dataset
     n = int(batch.shape[0]/2)
     return batch[:n], batch[n:2*n]  # in case of odd length!
 
@@ -30,9 +31,9 @@ def train(loaders, transferrer, epochs=1, device=None):
     for epoch_num in range(epochs):
         model.train()
         pbar = tqdm(loaders[0])
-        for batch in pbar:
-            batch = batch.to(device)
-            loss_c, loss_s, loss_r = step(model, batch, opt)
+        for batch_content, batch_style in pbar:
+            batch_content.to(device); batch_style.to(device)
+            loss_c, loss_s, loss_r = step(model, batch_content, batch_style, opt)
             pbar.set_description(f"Loss c: {loss_c.item():.3f}, s: {loss_s.item():.3f}, r: {loss_r.item():.3f}")
 
         opt.zero_grad()
@@ -40,9 +41,9 @@ def train(loaders, transferrer, epochs=1, device=None):
         all_losses = [[], [], []]
         pbar = tqdm(loaders[1])
         with torch.no_grad():
-            for batch in pbar:
-                batch = batch.to(device)
-                batch_losses = model(*reshape_batch(batch))
+            for batch_content, batch_style in pbar:
+                batch_content.to(device); batch_style.to(device)
+                batch_losses = model(batch_content, batch_style)
                 loss_c, loss_s, loss_r = map(lambda x: x.mean(), batch_losses)
                 pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}, r: {loss_r:.3f}")
                 list(map(lambda x, y: x.append(y.mean().item()), all_losses, batch_losses))
@@ -50,9 +51,9 @@ def train(loaders, transferrer, epochs=1, device=None):
         print(list(map(mean, all_losses)))
     return transferrer
 
-def step(model, batch, opt):
+def step(model, batch_content, batch_style, opt):
     opt.zero_grad()
-    batch_losses = model(*reshape_batch(batch))
+    batch_losses = model(batch_content, batch_style)
     loss_c, loss_s, loss_r = map(lambda x: x.mean(), batch_losses)
     (loss_c + loss_s + loss_r).backward()
     for param in model.module.decoder.parameters():
