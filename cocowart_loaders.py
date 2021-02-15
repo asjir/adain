@@ -1,12 +1,13 @@
-from torch.utils import data
+from pathlib import Path
+
+from PIL import Image
+from sklearn.model_selection import ShuffleSplit
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
-from sklearn.model_selection import ShuffleSplit
-from PIL import Image
 
 
 def ims_in(root, eval_frac=.2, seed=42):
-    ims = list(root.glob("**/*.jpg"))
+    ims = list(Path(root).glob("**/*.jpg"))
     rs = ShuffleSplit(1, eval_frac, random_state=seed)
     train_index, eval_index = next(rs.split(ims))
     return ims[train_index], ims[eval_index]

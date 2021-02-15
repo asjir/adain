@@ -1,9 +1,9 @@
 import re
-from random import random
 from pathlib import Path
+from random import random
 
-from more_itertools import flatten
 import torch
+from more_itertools import flatten
 from torch import nn
 from torch.utils.data import Dataset
 from torchvision import transforms
