@@ -26,7 +26,7 @@ def reshape_batch(batch):
 def train(loaders, transferrer, epochs=1, device=None):
     device = device or torch.device("cuda:0")
     opt = optim.RAdam(transferrer.decoder.parameters())
-    model = nn.DataParallel(transferrer)
+    model = nn.DataParallel(transferrer).to(device)
     
     for epoch_num in range(epochs):
         model.train()
