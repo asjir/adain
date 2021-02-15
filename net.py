@@ -54,11 +54,11 @@ class BottleneckedAdaIN(nn.Module):
 
 class Transferrer(nn.Module):
     def __init__(self, encoder, decoder, bottleneck=None,
-                 alpha=1.0, huber_beta=2e-3, normalised=False, use_t=False):
+                 alpha=1.0, huber_beta=2e-3, normalise=True, use_t=False):
         super().__init__()
         enc_layers = list(encoder.features.children())
 
-        first = enc_layers[:2] if normalised else (encoder[0], *enc_layers[:2])
+        first = enc_layers[:2] if not normalise else (encoder[0], *enc_layers[:2])
         self.encs = nn.ModuleList([
             nn.Sequential(*first),  # input -> relu1_1
             nn.Sequential(*enc_layers[2:7]),  # relu1_1 -> relu2_1
