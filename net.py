@@ -20,7 +20,7 @@ def vgg_enc(path=None, five=True):
     ))
     
     if path: model.load_state_dict(torch.load(path))
-    return model.module
+    return model.module[1]
 
 def to_encoder(classifier):
     """DEPREC"""
@@ -56,7 +56,7 @@ class Transferrer(nn.Module):
     def __init__(self, encoder, decoder, bottleneck=None,
                  alpha=1.0, huber_beta=2e-3, normalised=False, use_t=False):
         super().__init__()
-        enc_layers = list(encoder[1].features.children())
+        enc_layers = list(encoder.features.children())
 
         first = enc_layers[:2] if normalised else (encoder[0], *enc_layers[:2])
         self.encs = nn.ModuleList([
