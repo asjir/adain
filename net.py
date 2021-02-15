@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch._C import device
 from torch.nn import functional as F
 from torchvision import models
 
@@ -103,7 +104,7 @@ class Transferrer(nn.Module):
         if self.consistency_loss:
             half_consistency = self.consistency_loss(self.transfer(content, content), content)
         else:
-            half_consistency = torch.zeros(1, device=next(self.parameters()).device)
+            half_consistency = torch.zeros(1, device=g_t_feats.device)
 
         loss_c = F.mse_loss(g_t_feats[-1], t if self.use_t else content_feat)  # TODO:  why not content feat? 
         loss_s = style_loss(g_t_feats[0], style_feats[0])
