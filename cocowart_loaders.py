@@ -28,7 +28,7 @@ class CocoWArtDataset(Dataset):
         self.coco_ims = coco_ims
         self.wart_ims = wart_ims
         self.transforms = transforms.Compose((
-            transforms.ToTensor,
+            transforms.ToTensor(),
             transforms.RandomCrop(size=size)
         ))
         self.rescale_to = rescale_to
