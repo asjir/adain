@@ -27,10 +27,10 @@ class CocoWArtDataset(Dataset):
         super().__init__()
         self.coco_ims = coco_ims
         self.wart_ims = wart_ims
-        self.transforms = transforms.Compose(
+        self.transforms = transforms.Compose((
             transforms.ToTensor,
             transforms.RandomCrop(size=size)
-        )
+        ))
         self.rescale_to = rescale_to
         self.i = 0
 
