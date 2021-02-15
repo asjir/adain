@@ -51,5 +51,5 @@ class CocoWArtDataset(Dataset):
         im = Image.open(im_path)
         H,W = im.size 
         scale = self.rescale_to / min(H,W)
-        im.resize((int(H*scale), int(W*scale)), resample=Image.BICUBIC)
+        im = im.resize((int(H*scale), int(W*scale)), resample=Image.BICUBIC)
         return im
