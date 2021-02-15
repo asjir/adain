@@ -23,7 +23,7 @@ def reshape_batch(batch):
     n = int(batch.shape[0]/2)
     return batch[:n], batch[n:2*n]  # in case of odd length!
 
-def train(loaders, transferrer, epochs=1, device=None):
+def train(loaders, transferrer:nn.Module, model_dir=None, epochs=1, device=None):
     device = device or torch.device("cuda:0")
     opt = optim.RAdam(transferrer.decoder.parameters())
     model = nn.DataParallel(transferrer).to(device)
@@ -49,6 +49,9 @@ def train(loaders, transferrer, epochs=1, device=None):
                 list(map(lambda x, y: x.append(y.mean().item()), all_losses, batch_losses))
 
         print(list(map(mean, all_losses)))
+        if model_dir:
+            torch.save(transferrer.state_dict(), Path(model_dir) / f"model@epoch{epoch_num}.pt")
+        
     return transferrer
 
 def step(model, batch_content, batch_style, opt):
