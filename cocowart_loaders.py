@@ -5,7 +5,7 @@ from sklearn.model_selection import ShuffleSplit
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
 import numpy as np
-from util import collate_fn
+from util import cocowart_collate_fn as collate_fn
 
 def ims_in(root, eval_frac=.2, seed=42):
     ims = np.array(list(Path(root).glob("**/*.jpg")))

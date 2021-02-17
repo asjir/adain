@@ -85,7 +85,7 @@ def transferrer(model, target_layers):
             return new
 
 
-def collate_fn(batch):
+def cocowart_collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
     return torch.utils.data.dataloader.default_collate(batch)
 

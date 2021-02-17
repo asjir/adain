@@ -10,14 +10,21 @@ from data import ImageDataset
 from util import *
 
 
+def homogenous_collate_fn(batch):
+    n = len(batch)/2
+    b1 = batch[:n]
+    b2 = batch[n:n*2]
+    f = torch.utils.data.dataloader.default_collate
+    return f(b1), f(b2)
+
 def loaders(dataset_path, val_frac=.2, batch_size=8, image_size=512, doses=dose2locs.keys(),
             aug_prob=0., norm_f=None):
     dataset = ImageDataset(dataset_path, image_size=image_size, doses=doses, aug_prob=aug_prob, norm_f=norm_f)
     val_len = int(len(dataset) * val_frac)
     lengths = [len(dataset) - val_len, val_len]
     datasets = random_split(dataset, lengths=lengths)
-    return DataLoader(datasets[0], batch_size=batch_size*2), \
-           DataLoader(datasets[1], batch_size=batch_size*2)
+    f = lambda x: DataLoader(x, batch_size=batch_size*2, collate_fn=homogenous_collate_fn)
+    return f(datasets[0]), f(datasets[1])
 
 def reshape_batch(batch):
     # TODO: it needs to be put in dataset
