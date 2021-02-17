@@ -26,10 +26,12 @@ def loaders(dataset_path, val_frac=.2, batch_size=8, image_size=512, doses=dose2
     f = lambda x: DataLoader(x, batch_size=batch_size*2, collate_fn=homogenous_collate_fn)
     return f(datasets[0]), f(datasets[1])
 
+
 def reshape_batch(batch):
     # TODO: it needs to be put in dataset
     n = int(batch.shape[0]/2)
     return batch[:n], batch[n:2*n]  # in case of odd length!
+
 
 def train(loaders:Tuple[DataLoader], transferrer:nn.Module, model_dir=None, epochs=1, device=None):
     device = device or torch.device("cuda:0")
@@ -63,6 +65,7 @@ def train(loaders:Tuple[DataLoader], transferrer:nn.Module, model_dir=None, epoc
             torch.save(transferrer.state_dict(), Path(model_dir) / f"model@epoch{epoch_num}.pt")
         
     return transferrer
+
 
 def step(model, batch_content, batch_style, opt):
     opt.zero_grad()
