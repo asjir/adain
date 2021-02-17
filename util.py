@@ -85,6 +85,10 @@ def transferrer(model, target_layers):
             return new
 
 
+def collate_fn(batch):
+    batch = list(filter(lambda x: x is not None, batch))
+    return torch.utils.data.dataloader.default_collate(batch)
+
 
 class Aggregator:
     def __init__(self, model, style_layers, device=None):

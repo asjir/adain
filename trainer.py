@@ -1,4 +1,5 @@
 from statistics import mean
+from typing import Tuple
 
 import torch
 import torch_optimizer as optim
@@ -23,7 +24,7 @@ def reshape_batch(batch):
     n = int(batch.shape[0]/2)
     return batch[:n], batch[n:2*n]  # in case of odd length!
 
-def train(loaders, transferrer:nn.Module, model_dir=None, epochs=1, device=None):
+def train(loaders:Tuple[DataLoader], transferrer:nn.Module, model_dir=None, epochs=1, device=None):
     device = device or torch.device("cuda:0")
     opt = optim.RAdam(transferrer.decoder.parameters())
     model = nn.DataParallel(transferrer).to(device)
@@ -48,6 +49,7 @@ def train(loaders, transferrer:nn.Module, model_dir=None, epochs=1, device=None)
                 pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}, r: {loss_r:.3f}")
                 list(map(lambda x, y: x.append(y.mean().item()), all_losses, batch_losses))
 
+        loaders[0].dataset.step()
         print(list(map(mean, all_losses)))
         if model_dir:
             torch.save(transferrer.state_dict(), Path(model_dir) / f"model@epoch{epoch_num}.pt")

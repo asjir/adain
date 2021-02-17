@@ -5,6 +5,7 @@ from sklearn.model_selection import ShuffleSplit
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
 import numpy as np
+from util import collate_fn
 
 def ims_in(root, eval_frac=.2, seed=42):
     ims = np.array(list(Path(root).glob("**/*.jpg")))
@@ -18,7 +19,8 @@ def build_datasets(root_coco, root_wart, seed=42, eval_frac=.2,
     f = lambda x: ims_in(x, eval_frac=eval_frac, seed=seed)
     coco_train_ims, coco_eval_ims = f(root_coco)
     wart_train_ims, wart_eval_ims = f(root_wart)
-    g = lambda x, y: DataLoader(CocoWArtDataset(x,y), batch_size=batch_size, num_workers=num_workers)
+    g = lambda x, y: DataLoader(CocoWArtDataset(x,y), batch_size=batch_size,
+                                num_workers=num_workers, collate_fn=collate_fn)
     return g(coco_train_ims, wart_train_ims), g(coco_eval_ims, wart_eval_ims)
 
 
@@ -38,10 +40,13 @@ class CocoWArtDataset(Dataset):
         return len(self.coco_ims)
     
     def __getitem__(self, index):
-        coco_im = self.coco_ims[index]
-        wart_im = self.wart_ims[(self.i + index) % len(self.wart_ims)]
-        f = lambda x: self.transforms(self.load_rescale(x))
-        return f(coco_im), f(wart_im)
+        try:
+            coco_im = self.coco_ims[index]
+            wart_im = self.wart_ims[(self.i + index) % len(self.wart_ims)]
+            f = lambda x: self.transforms(self.load_rescale(x))
+            return f(coco_im), f(wart_im)
+        except OSError:
+            return None
     
     def step(self):
         self.i += len(self.coco_ims)
