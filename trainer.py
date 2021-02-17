@@ -11,7 +11,7 @@ from util import *
 
 
 def homogenous_collate_fn(batch):
-    n = len(batch)/2
+    n = int(len(batch)/2)
     b1 = batch[:n]
     b2 = batch[n:n*2]
     f = torch.utils.data.dataloader.default_collate
