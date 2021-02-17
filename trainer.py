@@ -56,7 +56,8 @@ def train(loaders:Tuple[DataLoader], transferrer:nn.Module, model_dir=None, epoc
                 pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}, r: {loss_r:.3f}")
                 list(map(lambda x, y: x.append(y.mean().item()), all_losses, batch_losses))
 
-        loaders[0].dataset.step()
+        if "step" in dir(loaders[0].dataset):
+            loaders[0].dataset.step()
         print(list(map(mean, all_losses)))
         if model_dir:
             torch.save(transferrer.state_dict(), Path(model_dir) / f"model@epoch{epoch_num}.pt")
