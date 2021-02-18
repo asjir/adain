@@ -18,12 +18,12 @@ def homogenous_collate_fn(batch):
     return f(b1), f(b2)
 
 def loaders(dataset_path, val_frac=.2, batch_size=8, image_size=512, doses=dose2locs.keys(),
-            aug_prob=0., norm_f=None):
+            aug_prob=0., norm_f=None, num_workers=1):
     dataset = ImageDataset(dataset_path, image_size=image_size, doses=doses, aug_prob=aug_prob, norm_f=norm_f)
     val_len = int(len(dataset) * val_frac)
     lengths = [len(dataset) - val_len, val_len]
     datasets = random_split(dataset, lengths=lengths)
-    f = lambda x: DataLoader(x, batch_size=batch_size*2, collate_fn=homogenous_collate_fn)
+    f = lambda x: DataLoader(x, batch_size=batch_size*2, collate_fn=homogenous_collate_fn, num_workers=num_workers)
     return f(datasets[0]), f(datasets[1])
 
 
