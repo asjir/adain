@@ -39,6 +39,7 @@ class ImageDataset(Dataset):
 
         self.transform = transforms.Compose([
             transforms.Resize(image_size),
+            transforms.RandomCrop(256),
             transforms.RandomPerspective(p=aug_prob),
             transforms.RandomErasing(p=aug_prob),
             # transforms.ColorJitter(saturation=.1, contrast=.1)
