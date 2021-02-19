@@ -185,6 +185,6 @@ def assess_transfer(transfer, classifier, data_path, dose_c, dose_s,
 def evaluate_median(loader):
     losses = []
     for batch_content, _ in tqdm(loader):
-        medians = batch_content[0].median(2).values.median(2).values[:,:,None,None]
+        medians = batch_content.median(2).values.median(2).values[:,:,None,None]
         losses.append(F.l1_loss(batch_content, medians))
     return mean(losses)
