@@ -186,5 +186,5 @@ def evaluate_median(loader):
     losses = []
     for batch_content, _ in tqdm(loader):
         medians = batch_content.median(2).values.median(2).values[:,:,None,None]
-        losses.append(F.l1_loss(batch_content, medians))
+        losses.append(F.l1_loss(batch_content, medians).item())
     return mean(losses)
