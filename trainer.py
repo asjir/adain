@@ -42,7 +42,7 @@ def train(loaders:Tuple[DataLoader], transferrer:nn.Module, model_dir=None, epoc
         model.train()
         pbar = tqdm(loaders[0])
         for batch_content, batch_style in pbar:
-            batch_content.to(device); batch_style.to(device)
+            batch_content = batch_content.to(device); batch_style = batch_style.to(device)
             loss_c, loss_s, loss_r = step(model, batch_content, batch_style, opt)
             pbar.set_description(f"Loss c: {loss_c.item():.3f}, s: {loss_s.item():.3f}, r: {loss_r.item():.3f}")
 
@@ -75,7 +75,7 @@ def evaluate(model, eval_loader, device):
     pbar = tqdm(eval_loader)
     with torch.no_grad():
         for batch_content, batch_style in pbar:
-            batch_content.to(device); batch_style.to(device)
+            batch_content = batch_content.to(device); batch_style = batch_style.to(device)
             batch_losses = model(batch_content, batch_style)
             loss_c, loss_s, loss_r = map(lambda x: x.mean(), batch_losses)
             pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}, r: {loss_r:.3f}")
@@ -85,7 +85,7 @@ def evaluate(model, eval_loader, device):
 
 def evaluate_reconstruction(model, eval_loader, device):
     temp = model.consistency_loss
-    model.consistency_loss = nn.L1Loss()
+    model.module.consistency_loss = nn.L1Loss()
     _, _, result = evaluate(model, eval_loader, device)
-    model.consistency_loss = temp
+    model.module.consistency_loss = temp
     return result
