@@ -47,20 +47,11 @@ def train(loaders:Tuple[DataLoader], transferrer:nn.Module, model_dir=None, epoc
             pbar.set_description(f"Loss c: {loss_c.item():.3f}, s: {loss_s.item():.3f}, r: {loss_r.item():.3f}")
 
         opt.zero_grad()
-        model.eval()
-        all_losses = [[], [], []]
-        pbar = tqdm(loaders[1])
-        with torch.no_grad():
-            for batch_content, batch_style in pbar:
-                batch_content.to(device); batch_style.to(device)
-                batch_losses = model(batch_content, batch_style)
-                loss_c, loss_s, loss_r = map(lambda x: x.mean(), batch_losses)
-                pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}, r: {loss_r:.3f}")
-                list(map(lambda x, y: x.append(y.mean().item()), all_losses, batch_losses))
-
+        
+        print(evaluate(model, loaders[1]))
+        
         if "step" in dir(loaders[0].dataset):
             loaders[0].dataset.step()
-        print(list(map(mean, all_losses)))
         if model_dir:
             torch.save(transferrer.state_dict(), Path(model_dir) / f"model@epoch{epoch_num}.pt")
         
@@ -76,3 +67,18 @@ def step(model, batch_content, batch_style, opt):
         param.grad.data.clamp_(-1,1)
     opt.step()
     return loss_c, loss_s, loss_r
+
+
+def evaluate(model, eval_loader):
+    model.eval()
+    all_losses = [[], [], []]
+    pbar = tqdm(eval_loader)
+    with torch.no_grad():
+        for batch_content, batch_style in pbar:
+            batch_content.to(device); batch_style.to(device)
+            batch_losses = model(batch_content, batch_style)
+            loss_c, loss_s, loss_r = map(lambda x: x.mean(), batch_losses)
+            pbar.set_description(f"Loss c: {loss_c:.3f}, s: {loss_s:.3f}, r: {loss_r:.3f}")
+            list(map(lambda x, y: x.append(y.mean().item()), all_losses, batch_losses))
+    return list(map(mean, all_losses))
+
