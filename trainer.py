@@ -48,7 +48,7 @@ def train(loaders:Tuple[DataLoader], transferrer:nn.Module, model_dir=None, epoc
 
         opt.zero_grad()
         
-        print(evaluate(model, loaders[1]))
+        print(evaluate(model, loaders[1], device))
         
         if "step" in dir(loaders[0].dataset):
             loaders[0].dataset.step()
@@ -69,7 +69,7 @@ def step(model, batch_content, batch_style, opt):
     return loss_c, loss_s, loss_r
 
 
-def evaluate(model, eval_loader):
+def evaluate(model, eval_loader, device):
     model.eval()
     all_losses = [[], [], []]
     pbar = tqdm(eval_loader)
@@ -83,9 +83,9 @@ def evaluate(model, eval_loader):
     return list(map(mean, all_losses))
 
 
-def evaluate_reconstruction(model, eval_loader):
+def evaluate_reconstruction(model, eval_loader, device):
     temp = model.consistency_loss
     model.consistency_loss = nn.L1Loss()
-    _, _, result = evaluate(model, eval_loader)
+    _, _, result = evaluate(model, eval_loader, device)
     model.consistency_loss = temp
     return result
