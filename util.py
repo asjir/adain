@@ -180,3 +180,5 @@ def assess_transfer(transfer, classifier, data_path, dose_c, dose_s,
     for b_c, b_s in take(n, zip(iter(data_c), iter(data_s))):
         print(F.softmax(classifier(transfer(b_c, b_s)), 1))
     
+    
+    

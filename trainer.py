@@ -82,3 +82,10 @@ def evaluate(model, eval_loader):
             list(map(lambda x, y: x.append(y.mean().item()), all_losses, batch_losses))
     return list(map(mean, all_losses))
 
+
+def evaluate_reconstruction(model, eval_loader):
+    temp = model.consistency_loss
+    model.consistency_loss = nn.L1Loss()
+    _, _, result = evaluate(model, eval_loader)
+    model.consistency_loss = temp
+    return result
