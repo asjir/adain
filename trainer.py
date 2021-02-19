@@ -84,7 +84,7 @@ def evaluate(model, eval_loader, device):
 
 
 def evaluate_reconstruction(model, eval_loader, device):
-    temp = model.consistency_loss
+    temp = model.module.consistency_loss
     model.module.consistency_loss = nn.L1Loss()
     _, _, result = evaluate(model, eval_loader, device)
     model.module.consistency_loss = temp
