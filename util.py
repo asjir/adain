@@ -182,7 +182,7 @@ def assess_transfer(transfer, classifier, data_path, dose_c, dose_s,
         print(F.softmax(classifier(transfer(b_c, b_s)), 1))
     
     
-def median_performance(loader):
+def evaluate_median(loader):
     losses = []
     for batch_content, _ in tqdm(loader):
         medians = batch_content[0].median(2).values.median(2).values[:,:,None,None]
