@@ -72,6 +72,10 @@ class MSNorm:
     def invert(self, img):
         return img * self.std + self.mean
 
+    
+def denorm_f(ms, device):
+    mean, std = map(lambda x: torch.tensor(x,  device=device)[None, :, None, None], ms)
+    return lambda x: (x*std + mean).cpu()
 
 def d8(img):
     r = random()

@@ -29,9 +29,9 @@ def show(g):
     plt.figure(figsize=(40,40)) 
     plt.imshow(g[0,:3].detach().cpu().permute(1,2,0))
 
-def show2(batch):
+def show2(batch, cols=4):
     plt.figure(figsize=(40,40)) 
-    plt.imshow((make_grid(batch, 4)[:3]).permute(1,2,0))
+    plt.imshow((make_grid(batch, cols)[:3]).permute(1,2,0))
 
 class Normalization(nn.Module):
     def __init__(self, mean=torch.zeros(3), std=torch.ones(3)):
@@ -44,21 +44,13 @@ class Normalization(nn.Module):
 
 
 def gram_matrix(input):
-    a, b, c, d = input.size()  # a=batch size(=1)
-    # b=number of feature maps
-    # (c,d)=dimensions of a f. map (N=c*d)
-
-    features = input.view(a * b, c * d)  # resise F_XL into \hat F_XL
-
-    G = torch.mm(features, features.t())  # compute the gram product
-
-    # we 'normalize' the values of the gram matrix
-    # by dividing by the number of element in each feature maps.
+    a, b, c, d = input.size() 
+    features = input.view(a * b, c * d)
+    G = torch.mm(features, features.t())
     return G.div(a * b * c * d)
 
 def gram_matrices(ims):
     return torch.stack([gram_matrix(im[None]) for im in ims])
-
 
 def transferrer(model, target_layers):
     layers = model.module._modules['1'].features.children()
@@ -188,3 +180,10 @@ def evaluate_median(loader):
         medians = batch_content.median(2).values.median(2).values[:,:,None,None]
         losses.append(F.l1_loss(batch_content, medians).item())
     return mean(losses)
+
+
+def transfer_vis(transfer, batch_content, batch_style, ms):
+    mean, std = map(lambda x: x[None, :, None, None], ms)
+    output = transfer(batch_content, batch_style)
+    f = lambda x: x*std + mean
+    
